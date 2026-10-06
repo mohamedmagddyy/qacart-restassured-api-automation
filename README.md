@@ -1,5 +1,7 @@
 # QA Cart REST Assured API Automation Framework
 
+[![API Tests](https://github.com/mohamedmagddyy/qacart-restassured-api-automation/actions/workflows/api-tests.yml/badge.svg)](https://github.com/mohamedmagddyy/qacart-restassured-api-automation/actions/workflows/api-tests.yml)
+
 ## 1. Project Overview
 
 This is a REST Assured API automation framework for the QA Cart Todo API. It uses Java, TestNG, Maven, Jackson, DataFaker, and Allure to cover positive, negative, authentication, authorization, validation, and security-focused API scenarios.
@@ -279,11 +281,13 @@ GitHub Actions workflow:
 The workflow:
 
 - Uses Java 21.
-- Runs `mvn clean test`.
-- Preserves Maven failure visibility.
-- Uploads Surefire reports even when tests fail.
-- Uploads Allure results from `target/allure-results` even when tests fail.
-- Does not mark the known security failures as passing.
+- Runs the main regression suite separately from known security defect checks.
+- Runs 44 non-known-defect tests as the main regression suite.
+- Runs the two cross-user authorization checks in a clearly labeled known security defects job.
+- Keeps the BOLA / IDOR assertions unchanged while the API currently allows unauthorized update/delete operations.
+- Preserves Maven failure visibility for the known product defects.
+- Uploads Surefire reports and Allure results from both jobs, even when tests fail.
+- Does not ignore, weaken, or convert the known security failures into passing checks.
 - Does not contain hardcoded tokens or credentials.
 
 ## 15. Key Framework Principles

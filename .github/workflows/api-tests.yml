@@ -5,7 +5,8 @@ on:
   pull_request:
 
 jobs:
-  test:
+  regression-tests:
+    name: Regression Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +20,8 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Run Maven tests
-        run: mvn clean test
+      - name: Run regression tests
+        run: mvn clean test -Dtest='!*#shouldNotUpdateAnotherUsersTodo,!*#shouldNotDeleteAnotherUsersTodo'
         env:
           BASE_URL: ${{ secrets.BASE_URL }}
 
@@ -28,7 +29,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports
+          name: regression-surefire-reports
           path: target/surefire-reports
           if-no-files-found: warn
 
@@ -36,6 +37,43 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results
+          name: regression-allure-results
+          path: target/allure-results
+          if-no-files-found: warn
+
+  known-security-defects:
+    name: Known Security Defects
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run known BOLA/IDOR checks
+        run: mvn clean test -Dtest='tests.TodoTests#shouldNotUpdateAnotherUsersTodo+shouldNotDeleteAnotherUsersTodo'
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+
+      - name: Upload Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-surefire-reports
+          path: target/surefire-reports
+          if-no-files-found: warn
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-allure-results
           path: target/allure-results
           if-no-files-found: warn
